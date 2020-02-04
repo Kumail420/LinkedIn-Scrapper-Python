@@ -1,0 +1,152 @@
+import csv
+import time
+
+from time import sleep
+from selenium import webdriver
+
+driver = webdriver.Chrome()
+
+
+def scraper():
+
+    time.sleep(3)
+    try:
+        name = driver.find_element_by_class_name('inline.t-24.t-black.t-normal.break-words').text
+        nam =name.split(' ')[0]
+        print (nam)
+        last =''
+        lastname = name.split(' ')[1:]
+        for ln in lastname:
+            last = last+' '+ln
+
+        print(last)
+    except:
+        name=''
+        lastname =''
+    try:
+        job_title = driver.find_element_by_class_name('mt1.t-18.t-black.t-normal').text
+        print (job_title)
+    except:
+        job_title=''
+    try:
+        location = driver.find_element_by_class_name('t-16.t-black.t-normal.inline-block').text
+        print (location)
+    except:
+        location=''
+    try:
+        showmore   = driver.find_elements_by_class_name('pv-profile-section__see-more-inline.pv-profile-section__text-truncate-toggle link.link-without-hover-state')
+        showmore.click()
+        time.sleep(1)
+    except:
+        print("Move on")
+    try:
+
+        ab = driver.find_element_by_class_name('lt-line-clamp__raw-line')
+        print(ab.text)
+    except:
+        ab = ''
+
+
+
+    try:
+        job_count = driver.find_elements_by_class_name('t-16.t-black.t-bold')
+        jb = []
+        for jobs in job_count:
+            jb.append(jobs.text)
+
+        print(jb)
+    except:
+        jb = ''
+    try:
+        company_count = driver.find_elements_by_class_name('pv-entity__secondary-title.t-14.t-black.t-normal')
+        cp =[]
+        for company in company_count:
+            cp.append(company.text)
+
+        print(cp)
+    except:
+        cp = ''
+    try:
+        unversity_names = driver.find_elements_by_class_name('pv-entity__school-name.t-16.t-black.t-bold')
+        un = []
+        for university in unversity_names:
+            un.append(university.text)
+
+        print(un)
+
+    except:
+        un=''
+    try:
+        degrees_names = driver.find_elements_by_class_name('pv-entity__comma-item')
+        dn = []
+        for degrees in degrees_names:
+            dn.append(degrees.text)
+        print(dn)
+    except:
+        dn=''
+
+    try:
+        job_span = driver.find_elements_by_class_name('pv-entity__bullet-item-v2')
+        jobtime = []
+        for jay in job_span:
+            jobtime.append(jay.text)
+
+        print(jobtime)
+
+    except:
+        jobtime = ''
+
+
+    csv_writer.writerow([url, nam, last , job_title , location , jb, cp, jobtime ,un , dn,ab ])
+ #   file.write(ab)
+def openurl():
+    global url
+    urlfile = open('urls.txt', 'r')
+    urls = urlfile.readlines()
+    for url in urls:
+        try:
+            driver.get(url)
+            time.sleep(3)
+            scraper()
+        except:
+            continue
+
+
+def main():
+
+    global csv_writer,file
+    file = open('test.txt', 'w+')
+    csv_file = open('Scraped_data.csv', 'w', encoding='utf-8' , newline='')
+    csv_writer = csv.writer(csv_file)
+    csv_writer.writerow(
+        ['Linkedin_link', 'First_name', 'Last_name', 'Job_Title', 'Location','About & Prior_Jobs','Prior_Company','Prior_Company_Span'
+        ,'Education','Degrees','Extra'])
+    usernameenter = input("Enter your linkedin Id:")
+    passlinkedin = input("Enter your linkedin passwrd:")
+
+    driver.get('https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin')
+    time.sleep(5)
+    # driver.find_element_by_class_name('nav__button-secondary').click()
+    username = driver.find_element_by_name('session_key')
+
+    username.send_keys(usernameenter)
+    time.sleep(2)
+
+    password = driver.find_element_by_name('session_password')
+    password.send_keys(passlinkedin)
+    time.sleep(2)
+
+    sign_in_button = driver.find_element_by_xpath('//*[@type="submit"]')
+    sign_in_button.click()
+    sleep(1)
+    openurl()
+
+    csv_file.close()
+    driver.close()
+    file.close()
+
+
+if __name__ == '__main__':
+    main()
+
+
